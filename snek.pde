@@ -16,6 +16,8 @@ bool end=false;
 int score=0;
 bool speed=false;
 int speedCount=-1;
+int deaths=0;
+int velo=1;
 //functions
 var rotate=function(x, y, a){
   if(x==0){
@@ -46,15 +48,23 @@ var rem=function(i){
 //loop
 draw=function(){
   background(0, 150, 30);
+  //score
+  textSize(20);
+  fill(0, 0, 0, 100);
+  textSize(50);
+  if(!end){
+    text(body.length+" - "+deaths, 300, 300);
+    
+  }
   //body
   fill(150, 255, 0, 10);
   if(speed){
-    fill(255, 100, 150, 10);
-    if(speedCount<=80){
+    fill(255, 100, 150, 50);
+    if(speedCount<=120){
       if(floor(speedCount/10)%2==0){
-        fill(200, 0, 50, 10);
+        fill(255, 50, 10, 100);
       }else{
-        fill(200, 255, 50, 10);
+        fill(200, 255, 50, 100);
       }
     }
   }
@@ -99,9 +109,9 @@ draw=function(){
   }
   //move
   
-  body=subset(append(body, [body[body.length-1][0]+dir[0], body[body.length-1][1]+dir[1]]), 1);
+  body=subset(append(body, [body[body.length-1][0]+dir[0]*velo, body[body.length-1][1]+dir[1]*velo]), 1);
   if(speed){
-    body=subset(append(body, [body[body.length-1][0]+dir[0], body[body.length-1][1]+dir[1]]), 1);
+    body=subset(append(body, [body[body.length-1][0]+dir[0]*velo, body[body.length-1][1]+dir[1]*velo]), 1);
   }
   //key input
   if(!keyPressed){
@@ -167,19 +177,26 @@ draw=function(){
       speed=false;
     }
   }
+  velo+=0.0001;
   //debug
-  textSize(20);
-  fill(0, 0, 0, 100);
-  textSize(50);
-  if(!end){
-    text(score, 300, 300);
-  }
+  fill(0);
+  textSize(30);
+  //text(velo, 200, 200);
   if(key=='*'||end){
-    textSize(150);
-    fill(0);
-    text("Game Over ", 70, -60, 500, 500);
-    textSize(70);
-    text("Score: "+score, 300, 480);
-    end();
+    speed=true;
+    speedCount=120;
+    end=false;
+    deaths++;
+    if(body.length>101){
+      body=subset(body, floor(body.length/2),   body.length-1);
+    }else{
+      textSize(150);
+      fill(0);
+      text("Game Over ", 70, -80, 500, 500);
+      textSize(70);
+      text("Score: "+score, 300, 430);
+      text("Deaths: "+deaths, 300, 530);
+      end();
+    }
   }
 }

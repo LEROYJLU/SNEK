@@ -18,6 +18,9 @@ bool speed=false;
 int speedCount=-1;
 int deaths=0;
 int velo=1;
+bool pause=false;
+bool keyP=true;
+bool stop=false;
 //functions
 var rotate=function(x, y, a){
   if(x==0){
@@ -38,7 +41,11 @@ var add=function(i){
   }
 }
 var rem=function(i){
-  food=concat(subset(food, 0, i), subset(food, i+1, food.length-(i+1)));
+  if(food.length<=1){
+    food=[];
+  }else{
+    food=concat(subset(food, 0, i), subset(food, i+1, food.length-(i+1)));
+  }
   if(i==spec){
     spec=-1;
   }else if(i<spec){
@@ -52,9 +59,15 @@ draw=function(){
   textSize(20);
   fill(0, 0, 0, 100);
   textSize(50);
-  if(!end){
-    text(body.length+" - "+deaths, 300, 300);
-    
+  if(key=='*'||end){
+    stop=true;
+  }
+  if(!end&&key!='*'){
+    if(pause){
+      text("Paused", 300, 300);
+    }else{
+      text("L: "+body.length+" | D: "+deaths+" | V: "+round(velo*100), 300, 300);
+    }
   }
   //body
   fill(150, 255, 0, 10);
@@ -108,29 +121,42 @@ draw=function(){
     }
   }
   //move
-  
-  body=subset(append(body, [body[body.length-1][0]+dir[0]*velo, body[body.length-1][1]+dir[1]*velo]), 1);
-  if(speed){
+  if(!pause){
     body=subset(append(body, [body[body.length-1][0]+dir[0]*velo, body[body.length-1][1]+dir[1]*velo]), 1);
+    if(speed){
+      body=subset(append(body, [body[body.length-1][0]+dir[0]*velo, body[body.length-1][1]+dir[1]*velo]), 1);
+    }
   }
   //key input
   if(!keyPressed){
     key='';
+    keyCode=null;
+    keyP=true;
   }
-  if(key=='z'||key=='Z'){
-    dir=rotate(dir[0], dir[1], -0.06);
+  if(!pause){
+    if(key=='z'||key=='Z'||keyCode==37){
+      dir=rotate(dir[0], dir[1], -0.06);
+    }
+    if(key=='x'||key=='X'||keyCode==39){
+      dir=rotate(dir[0], dir[1], 0.06);
+    }
   }
-  if(key=='x'||key=='X'){
-    dir=rotate(dir[0], dir[1], 0.06);
+  if((key=='p'||key=='P')&&keyP){
+    keyP=false;
+    if(pause){
+      pause=false;
+    }else{
+      pause=true;
+    }
+    
   }
-  
   //grow
   
   
   //gen
-  if(random(0, 80)<1){
+  if(random(0, 80)<1&&!pause){
     food=append(food, [random(15, 585), random(15, 585), random(10, 20)]);
-    if(random(0, 10)<1&&spec==-1){
+    if(random(0, 10)<1&&spec==-1&&food.length>0){
       spec=food.length-1;
     }
   }
@@ -138,7 +164,7 @@ draw=function(){
   
   noStroke();
   for(int i=0;i<food.length;i++){
-    if(random(0, 60)<1){
+    if(random(0, 60)<1&&!pause){
       food[i][2]--;
       if(food[i][2]<=0){
         rem(i);
@@ -168,7 +194,7 @@ draw=function(){
     
   }
   //speed
-  if(speed){
+  if(speed&&!pause){
     if(speedCount==-1){
       speedCount=500;
     }
@@ -177,15 +203,15 @@ draw=function(){
       speed=false;
     }
   }
-  velo+=0.0001;
-  //debug
-  fill(0);
-  textSize(30);
-  //text(velo, 200, 200);
-  if(key=='*'||end){
+  if(!pause){
+    velo+=0.0001;
+  }
+  //stop
+  if(stop){
     speed=true;
     speedCount=120;
     end=false;
+    stop=false;
     deaths++;
     if(body.length>101){
       body=subset(body, floor(body.length/2),   body.length-1);
@@ -199,4 +225,9 @@ draw=function(){
       end();
     }
   }
+  //debug
+  fill(0);
+  textSize(30);
+  //text(velo, 200, 200);
+  
 }

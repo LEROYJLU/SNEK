@@ -66,7 +66,7 @@ draw=function(){
     if(pause){
       text("Paused", 300, 300);
     }else{
-      text("L: "+body.length+" | D: "+deaths+" | V: "+round(velo*100), 300, 300);
+      text("L: "+body.length+" | D: "+deaths+" | V: "+round(velo*100)+" | T: "+spec, 300, 300);
     }
   }
   //body
